@@ -87,5 +87,18 @@
           wireless-firmware = pinned.raspberrypiWirelessFirmware;
           uboot-rpi-arm64 = pinned.uboot-rpi-arm64;
         } // kernels;
+      packages.x86_64-linux = with pinned.lib;
+        let
+          kernels =
+            foldlAttrs f { } (pinned.rpi-kernels-cross "x86_64-linux");
+          f = acc: kernel-version: board-attr-set:
+            foldlAttrs
+              (acc: board-version: drv: acc // {
+                "linux-${kernel-version}-${board-version}" = drv;
+              })
+              acc
+              board-attr-set;
+        in
+        kernels;
     };
 }
